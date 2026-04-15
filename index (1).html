@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Elixir | Advanced Biotech & Immunotherapy</title>
+
+    <!-- Preconnect for faster font loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Only load the weights actually used -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Inline critical CSS; load Tailwind async -->
+    <style>
+        /* ── Critical above-the-fold styles ── */
+        *,*::before,*::after{box-sizing:border-box}
+        html{scroll-behavior:smooth}
+        body{
+            background:#020c1b;
+            color:#ccd6f6;
+            font-family:'Inter',sans-serif;
+            overflow-x:hidden;
+            margin:0;
+        }
+        /* Prevent FOUC on nav */
+        #navbar{position:fixed;width:100%;z-index:50;top:0;padding-top:1.5rem;padding-left:1rem;padding-right:1rem;transition:padding .3s}
+    </style>
+
+    <!-- Tailwind via CDN (async – non-render-blocking) -->
+    <script>
+        window.tailwind={config:{theme:{extend:{
+            fontFamily:{sans:['Inter','sans-serif'],heading:['Space Grotesk','sans-serif']},
+            colors:{brand:{deepBlue:'#020c1b',medicalBlue:'#0a192f',lightBlue:'#112240',teal:'#64FFDA',emerald:'#10B981',textLight:'#ccd6f6',textDark:'#8892b0'}},
+            animation:{'spin-slow':'spin 20s linear infinite','spin-reverse-slow':'spin-reverse 30s linear infinite','float':'float 4s ease-in-out infinite','float-delayed':'float 5s ease-in-out infinite 1s','pulse-glow':'pulse-glow 2s ease infinite'},
+            keyframes:{'spin-reverse':{'0%':{transform:'rotate(0deg)'},'100%':{transform:'rotate(-360deg)'}},'float':{'0%,100%':{transform:'translateY(0)'},'50%':{transform:'translateY(-20px)'}},'pulse-glow':{'0%,100%':{opacity:1,filter:'brightness(1)'},'50%':{opacity:.7,filter:'brightness(1.5)'}}}
+        }}}}
+    </script>
+    <script src="https://cdn.tailwindcss.com" defer></script>
+
+    <!-- Page CSS -->
+    <style>
+        /* ── Glassmorphism blocks ── */
+        .glass-block{
+            background:linear-gradient(135deg,rgba(0,195,255,.15),rgba(0,102,255,.05));
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            border:1px solid rgba(0,210,255,.4);
+            box-shadow:0 10px 40px -10px rgba(0,210,255,.4),inset 0 0 20px rgba(0,210,255,.2);
+            transition:all .4s cubic-bezier(.4,0,.2,1);
+        }
+        .glass-block.scrolled{
+            background:linear-gradient(135deg,rgba(0,195,255,.25),rgba(0,102,255,.15));
+            border-color:rgba(0,210,255,.6);
+            box-shadow:0 15px 50px -10px rgba(0,210,255,.5),inset 0 0 30px rgba(0,210,255,.3);
+        }
+        .glass-card{
+            background:rgba(10,25,47,.7);
+            backdrop-filter:blur(20px);
+            -webkit-backdrop-filter:blur(20px);
+            border:1px solid rgba(255,255,255,.05);
+            box-shadow:0 20px 40px rgba(0,0,0,.4);
+            transition:border-color .3s;
+        }
+        .glass-card:hover{border-color:rgba(100,255,218,.2)}
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar{width:8px}
+        ::-webkit-scrollbar-track{background:#020c1b}
+        ::-webkit-scrollbar-thumb{background:#112240;border-radius:4px}
+        ::-webkit-scrollbar-thumb:hover{background:#00d2ff}
+
+        /* ── AOS-replacement: CSS scroll animation ── */
+        .reveal{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
+        .reveal.visible{opacity:1;transform:none}
+        .reveal-zoom{opacity:0;transform:scale(.9);transition:opacity .8s ease,transform .8s ease}
+        .reveal-zoom.visible{opacity:1;transform:scale(1)}
+        .reveal-right{opacity:0;transform:translateX(-40px);transition:opacity .8s ease,transform .8s ease}
+        .reveal-right.visible{opacity:1;transform:none}
+        .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+        /* ── Animations ── */
+        @keyframes spin-reverse{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}
+        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+        @keyframes float-d{0%,100%{transform:translateY(0)}50%{transform:translateY(-20px)}}
+        @keyframes pulse-glow{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.7;filter:brightness(1.5)}}
+        .anim-spin-slow{animation:spin 20s linear infinite}
+        .anim-spin-rev{animation:spin-reverse 30s linear infinite}
+        .anim-float{animation:float 4s ease-in-out infinite}
+        .anim-float-d{animation:float-d 5s ease-in-out 1s infinite}
+        .anim-pulse{animation:pulse-glow 2s ease infinite}
+
+        /* ── Teal nav glow ── */
+        .nav-link{font-size:.75rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#ccd6f6;transition:color .2s;text-shadow:0 0 5px rgba(0,210,255,.3)}
+        .nav-link:hover{color:#00d2ff}
+    </style>
+</head>
+
+<body class="antialiased" style="selection-background:rgba(100,255,218,.3)">
+
+<!-- ── Background glows (CSS only, no JS) ── -->
+<div aria-hidden="true" style="position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden">
+    <div style="position:absolute;top:-10%;left:-10%;width:40%;height:40%;background:rgba(16,185,129,.1);border-radius:50%;filter:blur(120px)"></div>
+    <div style="position:absolute;bottom:-10%;right:-10%;width:40%;height:40%;background:rgba(100,255,218,.1);border-radius:50%;filter:blur(120px)"></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     NAVIGATION
+══════════════════════════════════════════ -->
+<nav id="navbar" style="position:fixed;width:100%;z-index:50;padding-top:1.5rem;padding-inline:1rem;transition:padding .3s">
+    <div style="max-width:80rem;margin:0 auto;position:relative">
+        <div id="nav-container" class="glass-block" style="display:flex;justify-content:space-between;align-items:center;height:5rem;padding-inline:2.5rem;border-radius:9999px;position:relative;z-index:50">
+
+            <!-- Logo -->
+            <a href="#home" style="display:flex;align-items:center;gap:.75rem;text-decoration:none">
+                <div style="width:3rem;height:3rem;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#64FFDA,#10B981);border-radius:.5rem;padding:.375rem;overflow:hidden;flex-shrink:0">
+                    <!-- Inline DNA SVG – no external icon library needed -->
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#020c1b" stroke-width="1.5" style="width:1.5rem;height:1.5rem" aria-hidden="true">
+                        <path d="M2 2c2 2 6 3 10 0s8-2 10 0M2 22c2-2 6-3 10 0s8 2 10 0M12 2v20M7 7h10M7 17h10M5 12h14"/>
+                    </svg>
+                </div>
+                <span style="font-family:'Space Grotesk',sans-serif;font-size:1.125rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#fff;text-shadow:0 0 8px rgba(0,210,255,.8)" class="hidden sm:block">
+                    Swift <span style="color:#64FFDA">Elixir</span>
+                </span>
+            </a>
+
+            <!-- Desktop links -->
+            <div id="desktop-menu" style="display:none;align-items:center;gap:2rem">
+                <a href="#technology" class="nav-link">Technology</a>
+                <a href="#pipeline-data" class="nav-link">Pipeline</a>
+                <a href="#research" class="nav-link">Research</a>
+                <a href="#leadership" class="nav-link">About</a>
+                <a href="#contact" style="padding:.625rem 1.5rem;border:1px solid #00d2ff;color:#00d2ff;border-radius:9999px;font-size:.75rem;font-weight:600;letter-spacing:.075em;text-transform:uppercase;text-decoration:none;box-shadow:0 0 15px rgba(0,210,255,.3);transition:all .2s" onmouseover="this.style.background='rgba(0,210,255,.1)';this.style.boxShadow='0 0 25px rgba(0,210,255,.6)'" onmouseout="this.style.background='transparent';this.style.boxShadow='0 0 15px rgba(0,210,255,.3)'">
+                    Contact Research
+                </a>
+            </div>
+
+            <!-- Mobile button -->
+            <button id="mobile-menu-btn" aria-label="Toggle menu" style="display:flex;color:#00d2ff;filter:drop-shadow(0 0 8px rgba(0,210,255,.6));background:none;border:none;cursor:pointer;padding:.25rem">
+                <svg id="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.5rem;height:1.5rem"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                <svg id="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.5rem;height:1.5rem;display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" style="display:none;position:absolute;top:100%;left:0;width:100%;padding-top:1rem;z-index:40">
+            <div class="glass-block" style="display:flex;flex-direction:column;gap:1rem;padding:1.5rem;border-radius:1rem;box-shadow:0 25px 50px rgba(0,0,0,.5)">
+                <a href="#technology" class="mobile-link nav-link" style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05)">Technology</a>
+                <a href="#pipeline-data" class="mobile-link nav-link" style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05)">Pipeline</a>
+                <a href="#research" class="mobile-link nav-link" style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05)">Research</a>
+                <a href="#leadership" class="mobile-link nav-link" style="padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,.05)">About</a>
+                <a href="#contact" class="mobile-link" style="text-align:center;padding:.75rem 1.5rem;border:1px solid #00d2ff;color:#00d2ff;border-radius:9999px;font-size:.75rem;font-weight:600;letter-spacing:.075em;text-decoration:none;margin-top:.5rem">Contact Research</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO
+══════════════════════════════════════════ -->
+<section id="home" style="position:relative;padding-top:10rem;padding-bottom:5rem;padding-inline:1.5rem;overflow:hidden;min-height:100vh;display:flex;align-items:center">
+    <div style="max-width:80rem;margin:0 auto;display:grid;grid-template-columns:1fr;gap:3rem;align-items:center;width:100%">
+
+        <!-- Text -->
+        <div class="reveal-right">
+            <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.375rem 1rem;border-radius:9999px;background:rgba(100,255,218,.1);border:1px solid rgba(100,255,218,.2);color:#64FFDA;font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:2rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem" aria-hidden="true"><path d="M12 3l1.5 4.5H18l-3.5 2.5 1.5 4.5L12 12l-4 2.5 1.5-4.5L6 7.5h4.5z"/></svg>
+                Breakthrough Immunotherapy 2026
+            </div>
+
+            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2.5rem,7vw,4.5rem);font-weight:700;color:#fff;line-height:1.1;margin-bottom:1.5rem">
+                Precision<br>
+                <span style="background:linear-gradient(to right,#64FFDA,#10B981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Immunity</span>
+                <span style="display:block;font-size:.9em"> for Targeted Healing.</span>
+            </h1>
+
+            <p style="font-size:1.125rem;color:#8892b0;margin-bottom:2.5rem;max-width:32rem;line-height:1.75;font-weight:300">
+                Swift Elixir is redefining oncology through next-generation immune system engineering. Faster detection, smarter targeting, and rapid restoration.
+            </p>
+
+            <div style="display:flex;flex-wrap:wrap;gap:1rem">
+                <a href="#pipeline-data" style="display:inline-flex;align-items:center;gap:.5rem;padding:1rem 2rem;background:#64FFDA;color:#020c1b;border-radius:.75rem;font-weight:700;text-decoration:none;transition:transform .2s,background .2s" onmouseover="this.style.transform='translateY(-3px)';this.style.background='#5de8c5'" onmouseout="this.style.transform='none';this.style.background='#64FFDA'">
+                    Explore Pipeline
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1.25rem;height:1.25rem"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+                <a href="#research" style="display:inline-flex;align-items:center;padding:1rem 2rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:.75rem;font-weight:700;text-decoration:none;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='rgba(255,255,255,.05)'">
+                    View Clinical Data
+                </a>
+            </div>
+        </div>
+
+        <!-- Abstract Visual (hidden on mobile – saves render cost) -->
+        <div style="display:none;position:relative" id="hero-visual">
+            <div style="position:relative;aspect-ratio:1;background:linear-gradient(135deg,rgba(100,255,218,.05),transparent);border-radius:50%;border:1px solid rgba(255,255,255,.05);backdrop-filter:blur(40px);overflow:hidden">
+                <!-- Rings -->
+                <div style="position:absolute;inset:1rem;border:1px dashed rgba(100,255,218,.3);border-radius:50%" class="anim-spin-slow"></div>
+                <div style="position:absolute;inset:3rem;border:2px dotted rgba(16,185,129,.2);border-radius:50%" class="anim-spin-rev"></div>
+                <div style="position:absolute;inset:6rem;border:1px solid rgba(100,255,218,.1);border-radius:50%"></div>
+                <!-- Core -->
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+                    <div style="padding:3rem;background:#0a192f;border-radius:1.5rem;box-shadow:0 0 50px rgba(100,255,218,.15);border:1px solid rgba(100,255,218,.2);text-align:center">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="1.5" style="width:8rem;height:8rem;margin:0 auto 1.5rem" aria-hidden="true">
+                            <path d="M2 2c2 2 6 3 10 0s8-2 10 0M2 22c2-2 6-3 10 0s8 2 10 0M12 2v20M7 7h10M7 17h10M5 12h14"/>
+                        </svg>
+                        <div style="height:.375rem;width:8rem;background:rgba(100,255,218,.2);border-radius:9999px;overflow:hidden;margin-bottom:.75rem">
+                            <div style="height:100%;width:66%;background:#64FFDA" class="anim-pulse"></div>
+                        </div>
+                        <div style="height:.375rem;width:6rem;background:rgba(100,255,218,.4);border-radius:9999px;margin-bottom:.75rem"></div>
+                        <div style="height:.375rem;width:10rem;background:rgba(16,185,129,.2);border-radius:9999px"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Floating icons -->
+            <div style="position:absolute;top:1rem;right:1rem;padding:1rem;background:rgba(10,25,47,.8);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:1rem;box-shadow:0 20px 40px rgba(0,0,0,.4)" class="anim-float">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" style="width:2rem;height:2rem" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+            </div>
+            <div style="position:absolute;bottom:4rem;left:-1.5rem;padding:1rem;background:rgba(10,25,47,.8);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.1);border-radius:1rem;box-shadow:0 20px 40px rgba(0,0,0,.4)" class="anim-float-d">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="2" style="width:2rem;height:2rem" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     STATS
+══════════════════════════════════════════ -->
+<section style="padding:5rem 1.5rem;border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);background:rgba(10,25,47,.3);backdrop-filter:blur(4px)">
+    <div style="max-width:80rem;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:2rem">
+        <div class="reveal d1" style="text-align:center">
+            <p style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin:0 0 .5rem">42+</p>
+            <p style="color:#64FFDA;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin:0">Clinical Trials</p>
+        </div>
+        <div class="reveal d2" style="text-align:center">
+            <p style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin:0 0 .5rem">94%</p>
+            <p style="color:#64FFDA;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin:0">Success Rate</p>
+        </div>
+        <div class="reveal d3" style="text-align:center">
+            <p style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin:0 0 .5rem">99.9%</p>
+            <p style="color:#64FFDA;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin:0">Target Accuracy</p>
+        </div>
+        <div class="reveal d4" style="text-align:center">
+            <p style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin:0 0 .5rem">120+</p>
+            <p style="color:#64FFDA;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin:0">Patents Filed</p>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CORE INNOVATION
+══════════════════════════════════════════ -->
+<section id="technology" style="padding:8rem 1.5rem;position:relative;z-index:10">
+    <div style="max-width:80rem;margin:0 auto">
+        <div class="reveal" style="text-align:center;margin-bottom:5rem">
+            <p style="color:#64FFDA;font-weight:700;letter-spacing:.15em;text-transform:uppercase;font-size:.75rem;margin-bottom:1rem">Core Innovation</p>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin:0">Advanced Biotech Ecosystem</h2>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr));gap:2rem">
+
+            <!-- Card 1 -->
+            <div class="glass-card reveal d1" style="padding:2.5rem;border-radius:1.5rem;border-left:3px solid #64FFDA">
+                <div style="width:4rem;height:4rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:1rem;display:flex;align-items:center;justify-content:center;margin-bottom:2rem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="2" style="width:2rem;height:2rem" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.375rem;font-weight:700;color:#fff;margin-bottom:1rem">Rapid Response</h3>
+                <p style="color:#8892b0;font-size:.875rem;line-height:1.75;margin-bottom:2rem;font-weight:300">Bio-engineered T-cells that activate within seconds of detecting malignant cellular signatures, stopping spread immediately.</p>
+                <a href="#" style="display:inline-flex;align-items:center;gap:.5rem;color:#64FFDA;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none">Learn more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><polyline points="9 18 15 12 9 6"/></svg></a>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="glass-card reveal d2" style="padding:2.5rem;border-radius:1.5rem;border-left:3px solid #10B981">
+                <div style="width:4rem;height:4rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:1rem;display:flex;align-items:center;justify-content:center;margin-bottom:2rem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" style="width:2rem;height:2rem" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.375rem;font-weight:700;color:#fff;margin-bottom:1rem">Immune Shield</h3>
+                <p style="color:#8892b0;font-size:.875rem;line-height:1.75;margin-bottom:2rem;font-weight:300">Strengthening healthy cellular structures while isolating target infections to prevent systemic degradation.</p>
+                <a href="#" style="display:inline-flex;align-items:center;gap:.5rem;color:#10B981;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none">Learn more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><polyline points="9 18 15 12 9 6"/></svg></a>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="glass-card reveal d3" style="padding:2.5rem;border-radius:1.5rem;border-left:3px solid #60a5fa">
+                <div style="width:4rem;height:4rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:1rem;display:flex;align-items:center;justify-content:center;margin-bottom:2rem">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" style="width:2rem;height:2rem" aria-hidden="true"><circle cx="9" cy="9" r="6"/><line x1="9" y1="1" x2="9" y2="3"/><line x1="9" y1="15" x2="9" y2="17"/><line x1="1" y1="9" x2="3" y2="9"/><line x1="15" y1="9" x2="17" y2="9"/><line x1="13.5" y1="4.5" x2="14.9" y2="3.1"/><line x1="3.1" y1="14.9" x2="4.5" y2="13.5"/><line x1="13.5" y1="13.5" x2="14.9" y2="14.9"/><line x1="3.1" y1="3.1" x2="4.5" y2="4.5"/><line x1="15" y1="19" x2="21" y2="21"/></svg>
+                </div>
+                <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.375rem;font-weight:700;color:#fff;margin-bottom:1rem">Nano-Precision</h3>
+                <p style="color:#8892b0;font-size:.875rem;line-height:1.75;margin-bottom:2rem;font-weight:300">Molecular-scale therapy delivery ensuring absolute specificity and zero collateral damage to vital organs.</p>
+                <a href="#" style="display:inline-flex;align-items:center;gap:.5rem;color:#60a5fa;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none">Learn more <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:1rem;height:1rem"><polyline points="9 18 15 12 9 6"/></svg></a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     PIPELINE
+══════════════════════════════════════════ -->
+<section id="pipeline-data" style="padding:6rem 1.5rem;background:rgba(10,25,47,.2);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)">
+    <div style="max-width:80rem;margin:0 auto">
+        <div class="reveal" style="text-align:center;margin-bottom:4rem">
+            <p style="color:#64FFDA;font-weight:600;letter-spacing:.15em;text-transform:uppercase;font-size:.75rem;margin-bottom:.75rem">Clinical Data</p>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin-bottom:1.5rem">Active Development Pipeline</h2>
+            <p style="color:#8892b0;max-width:48rem;margin:0 auto;font-weight:300;font-size:1.0625rem">Tracking the progress of our proprietary immunotherapies and targeted molecular compounds from discovery through late-stage clinical trials.</p>
+        </div>
+
+        <div class="reveal" style="display:flex;flex-direction:column;gap:1rem">
+
+            <!-- Header row (desktop only) -->
+            <div style="display:none;grid-template-columns:2fr 3fr 3fr 4fr;gap:1rem;padding:.75rem 2rem;font-size:.7rem;font-weight:700;color:#8892b0;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.1)" id="pipe-header">
+                <span>Candidate</span><span>Target / Mechanism</span><span>Indication</span><span style="text-align:center">Development Phase</span>
+            </div>
+
+            <!-- Row 1 -->
+            <div class="glass-card" style="border-radius:1rem;padding:1.5rem 2rem;border-left:4px solid #64FFDA">
+                <div style="display:grid;grid-template-columns:1fr;gap:.75rem" id="pipe-row-1">
+                    <span style="font-family:monospace;font-weight:700;color:#64FFDA;font-size:1.125rem">SE-104</span>
+                    <span style="color:#ccd6f6;font-size:.875rem">CD19 / T-Cell Engager</span>
+                    <span style="color:#8892b0;font-size:.875rem">Relapsed B-cell Lymphoma</span>
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#8892b0;margin-bottom:.5rem;letter-spacing:.05em;text-transform:uppercase">
+                            <span>Pre</span><span>Ph 1</span><span style="color:#fff;font-weight:700">Ph 2 ▶</span><span>Ph 3</span>
+                        </div>
+                        <div style="width:100%;height:.375rem;background:#020c1b;border-radius:9999px;overflow:hidden">
+                            <div style="height:100%;width:65%;background:linear-gradient(to right,#64FFDA,#10B981);border-radius:9999px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="glass-card" style="border-radius:1rem;padding:1.5rem 2rem;border-left:4px solid #10B981">
+                <div style="display:grid;grid-template-columns:1fr;gap:.75rem">
+                    <span style="font-family:monospace;font-weight:700;color:#64FFDA;font-size:1.125rem">SE-201</span>
+                    <span style="color:#ccd6f6;font-size:.875rem">PD-1 / Checkpoint Inhibitor</span>
+                    <span style="color:#8892b0;font-size:.875rem">Advanced Melanoma</span>
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#8892b0;margin-bottom:.5rem;letter-spacing:.05em;text-transform:uppercase">
+                            <span>Pre</span><span>Ph 1</span><span>Ph 2</span><span style="color:#10B981;font-weight:700">Ph 3 ▶</span>
+                        </div>
+                        <div style="width:100%;height:.375rem;background:#020c1b;border-radius:9999px;overflow:hidden">
+                            <div style="height:100%;width:85%;background:linear-gradient(to right,#64FFDA,#10B981);border-radius:9999px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="glass-card" style="border-radius:1rem;padding:1.5rem 2rem;border-left:4px solid rgba(100,255,218,.5)">
+                <div style="display:grid;grid-template-columns:1fr;gap:.75rem">
+                    <span style="font-family:monospace;font-weight:700;color:#64FFDA;font-size:1.125rem">SE-315</span>
+                    <span style="color:#ccd6f6;font-size:.875rem">KRAS G12C Inhibitor</span>
+                    <span style="color:#8892b0;font-size:.875rem">Non-Small Cell Lung Cancer</span>
+                    <div>
+                        <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#8892b0;margin-bottom:.5rem;letter-spacing:.05em;text-transform:uppercase">
+                            <span>Pre</span><span style="color:#64FFDA;font-weight:700">Ph 1 ▶</span><span>Ph 2</span><span>Ph 3</span>
+                        </div>
+                        <div style="width:100%;height:.375rem;background:#020c1b;border-radius:9999px;overflow:hidden">
+                            <div style="height:100%;width:35%;background:linear-gradient(to right,#64FFDA,#10B981);border-radius:9999px"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     LEADERSHIP
+══════════════════════════════════════════ -->
+<section id="leadership" style="padding:8rem 1.5rem">
+    <div style="max-width:80rem;margin:0 auto">
+        <div class="reveal" style="margin-bottom:4rem">
+            <p style="color:#64FFDA;font-weight:600;letter-spacing:.15em;text-transform:uppercase;font-size:.75rem;margin-bottom:.75rem">Leadership</p>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:#fff;margin-bottom:1rem">Scientific Advisory Board</h2>
+            <p style="color:#8892b0;font-weight:300;font-size:.875rem;max-width:22rem">Guided by decades of pioneering research in molecular biology and immuno-oncology.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr));gap:2rem">
+
+            <!-- Profile 1 -->
+            <div class="glass-card reveal d1" style="padding:2rem;border-radius:2rem;text-align:center">
+                <div style="width:7rem;height:7rem;margin:0 auto 1.5rem;border-radius:50%;background:#020c1b;border:1px solid rgba(100,255,218,.5);display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="1.5" style="width:2.5rem;height:2.5rem;opacity:.5" aria-hidden="true"><circle cx="9" cy="9" r="6"/><line x1="9" y1="1" x2="9" y2="3"/><line x1="9" y1="15" x2="9" y2="17"/><line x1="1" y1="9" x2="3" y2="9"/><line x1="15" y1="9" x2="17" y2="9"/><line x1="15" y1="19" x2="21" y2="21"/></svg>
+                </div>
+                <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:.25rem">Dr. Aris Thorne, MD, PhD</h3>
+                <p style="color:#64FFDA;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:1rem">Chief Scientific Officer</p>
+                <p style="color:#8892b0;font-size:.8125rem;font-weight:300;line-height:1.7">Former head of Immunology at global research institutes, pioneering CAR-T cell innovations.</p>
+            </div>
+
+            <!-- Profile 2 -->
+            <div class="glass-card reveal d2" style="padding:2rem;border-radius:2rem;text-align:center">
+                <div style="width:7rem;height:7rem;margin:0 auto 1.5rem;border-radius:50%;background:#020c1b;border:1px solid rgba(100,255,218,.5);display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="1.5" style="width:2.5rem;height:2.5rem;opacity:.5" aria-hidden="true"><path d="M2 2c2 2 6 3 10 0s8-2 10 0M2 22c2-2 6-3 10 0s8 2 10 0M12 2v20M7 7h10M7 17h10M5 12h14"/></svg>
+                </div>
+                <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:.25rem">Dr. Elena Rostova</h3>
+                <p style="color:#64FFDA;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:1rem">Head of Precision Oncology</p>
+                <p style="color:#8892b0;font-size:.8125rem;font-weight:300;line-height:1.7">Leading expert in targeted genetic editing and CRISPR-based therapeutic applications.</p>
+            </div>
+
+            <!-- Profile 3 -->
+            <div class="glass-card reveal d3" style="padding:2rem;border-radius:2rem;text-align:center">
+                <div style="width:7rem;height:7rem;margin:0 auto 1.5rem;border-radius:50%;background:#020c1b;border:1px solid rgba(100,255,218,.5);display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#64FFDA" stroke-width="1.5" style="width:2.5rem;height:2.5rem;opacity:.5" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.125rem;font-weight:700;color:#fff;margin-bottom:.25rem">Marcus Vance, PharmD</h3>
+                <p style="color:#64FFDA;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:1rem">VP Clinical Development</p>
+                <p style="color:#8892b0;font-size:.8125rem;font-weight:300;line-height:1.7">Oversees global clinical trial execution ensuring rapid regulatory approvals and safety.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     CTA BANNER
+══════════════════════════════════════════ -->
+<section style="padding:5rem 1.5rem">
+    <div class="reveal-zoom" style="max-width:80rem;margin:0 auto;position:relative;overflow:hidden;background:linear-gradient(to right,#64FFDA,#10B981);border-radius:3rem;padding:4rem 2rem;text-align:center;box-shadow:0 0 80px rgba(100,255,218,.2)">
+        <!-- Blobs -->
+        <div aria-hidden="true" style="position:absolute;inset:0;opacity:.2;pointer-events:none">
+            <div style="position:absolute;top:-6rem;left:-6rem;width:24rem;height:24rem;background:#fff;border-radius:50%;filter:blur(60px)"></div>
+            <div style="position:absolute;bottom:-6rem;right:-6rem;width:24rem;height:24rem;background:#020c1b;border-radius:50%;filter:blur(60px)"></div>
+        </div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.75rem,5vw,3.5rem);font-weight:700;color:#020c1b;margin-bottom:1.5rem;line-height:1.15;position:relative">
+            Pioneering the Future of<br>Regenerative Medicine.
+        </h2>
+        <p style="color:rgba(2,12,27,.8);max-width:40rem;margin:0 auto 2.5rem;font-size:1.0625rem;font-weight:500;position:relative">
+            Join the global clinical network and be part of the most significant advancement in oncology this decade.
+        </p>
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;position:relative">
+            <button style="padding:1rem 2.5rem;background:#020c1b;color:#fff;border:none;border-radius:1rem;font-weight:700;cursor:pointer;font-size:1rem;transition:background .2s" onmouseover="this.style.background='#000'" onmouseout="this.style.background='#020c1b'">Join Our Network</button>
+            <button style="padding:1rem 2.5rem;border:2px solid rgba(2,12,27,.2);color:#020c1b;background:transparent;border-radius:1rem;font-weight:700;cursor:pointer;font-size:1rem;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.15)'" onmouseout="this.style.background='transparent'">Partner with Us</button>
+        </div>
+    </div>
+</section>
+
+<!-- ══════════════════════════════════════════
+     FOOTER
+══════════════════════════════════════════ -->
+<footer id="contact" style="padding:5rem 1.5rem 2.5rem;border-top:1px solid rgba(255,255,255,.05);background:#020c1b;position:relative;overflow:hidden">
+    <div aria-hidden="true" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:80%;height:8rem;background:rgba(100,255,218,.05);filter:blur(60px);border-radius:50% 50% 0 0;pointer-events:none"></div>
+
+    <div style="max-width:80rem;margin:0 auto;position:relative">
+        <div style="display:grid;grid-template-columns:1fr;gap:3rem;margin-bottom:5rem">
+            <!-- Brand -->
+            <div>
+                <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:2rem">
+                    <div style="width:2.5rem;height:2.5rem;background:#64FFDA;border-radius:.5rem;display:flex;align-items:center;justify-content:center">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#020c1b" stroke-width="2" style="width:1.5rem;height:1.5rem" aria-hidden="true"><path d="M2 2c2 2 6 3 10 0s8-2 10 0M2 22c2-2 6-3 10 0s8 2 10 0M12 2v20M7 7h10M7 17h10M5 12h14"/></svg>
+                    </div>
+                    <span style="font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.05em">Swift <span style="color:#64FFDA">Elixir</span></span>
+                </div>
+                <p style="color:#8892b0;max-width:22rem;line-height:1.75;font-weight:300;font-size:.875rem">Global headquarters in Basel, Switzerland. Specialized in immunotherapy, genetic engineering, and targeted oncology systems.</p>
+            </div>
+            <!-- Divisions + Company (side by side on wider screens) -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+                <div>
+                    <h5 style="color:#fff;font-weight:700;margin-bottom:1.5rem;letter-spacing:.05em;font-size:.75rem">DIVISIONS</h5>
+                    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1rem;font-size:.875rem;font-weight:300">
+                        <li><a href="#" style="color:#8892b0;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#64FFDA'" onmouseout="this.style.color='#8892b0'">Oncology Research</a></li>
+                        <li><a href="#" style="color:#8892b0;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#64FFDA'" onmouseout="this.style.color='#8892b0'">Immune Engineering</a></li>
+                        <li><a href="#" style="color:#8892b0;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#64FFDA'" onmouseout="this.style.color='#8892b0'">Precision Logistics</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 style="color:#fff;font-weight:700;margin-bottom:1.5rem;letter-spacing:.05em;font-size:.75rem">COMPANY</h5>
+                    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:1rem;font-size:.875rem;font-weight:300">
+                        <li><a href="#leadership" style="color:#8892b0;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#64FFDA'" onmouseout="this.style.color='#8892b0'">Leadership</a></li>
+                        <li><a href="#" style="color:#8892b0;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#64FFDA'" onmouseout="this.style.color='#8892b0'">Careers</a></li>
+                        <li><a href="#" style="color:#8892b0;text-decoration:none;transition:color .2s" onmouseover="this.style.color='#64FFDA'" onmouseout="this.style.color='#8892b0'">Newsroom</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding-top:2rem;border-top:1px solid rgba(255,255,255,.05);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;font-size:.7rem;color:#8892b0;font-weight:500;letter-spacing:.1em;text-transform:uppercase">
+            <p style="margin:0">&copy; 2026 Swift Elixir Pharmaceuticals. All rights reserved.</p>
+            <div style="display:flex;gap:2rem">
+                <a href="#" style="color:#8892b0;text-decoration:none" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#8892b0'">Privacy Policy</a>
+                <a href="#" style="color:#8892b0;text-decoration:none" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#8892b0'">Terms of Use</a>
+                <a href="#" style="color:#8892b0;text-decoration:none" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#8892b0'">Global Compliance</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS — all deferred / non-blocking
+══════════════════════════════════════════ -->
+<script>
+(function(){
+    // ── Responsive: show desktop menu & hero visual ──
+    function applyLayout(){
+        var dm=document.getElementById('desktop-menu');
+        var hv=document.getElementById('hero-visual');
+        var ph=document.getElementById('pipe-header');
+        var pipeRows=document.querySelectorAll('#pipe-row-1, [id^="pipe-row"]');
+        var wide=window.innerWidth>=768;
+        if(dm) dm.style.display=wide?'flex':'none';
+        if(hv) hv.style.display=wide?'block':'none';
+        if(ph) ph.style.display=wide?'grid':'none';
+        // Expand pipeline rows to grid on wide
+        document.querySelectorAll('.glass-card [style*="grid-template-columns:1fr"]').forEach(function(el){
+            if(wide) el.style.gridTemplateColumns='2fr 3fr 3fr 4fr';
+            else el.style.gridTemplateColumns='1fr';
+        });
+    }
+    applyLayout();
+    window.addEventListener('resize',applyLayout);
+
+    // ── Navbar scroll ──
+    window.addEventListener('scroll',function(){
+        var nav=document.getElementById('navbar');
+        var cont=document.getElementById('nav-container');
+        if(window.scrollY>50){
+            cont.classList.add('scrolled');
+            nav.style.paddingTop='.75rem';
+        }else{
+            cont.classList.remove('scrolled');
+            nav.style.paddingTop='1.5rem';
+        }
+    },{passive:true});
+
+    // ── Mobile menu ──
+    var btn=document.getElementById('mobile-menu-btn');
+    var mm=document.getElementById('mobile-menu');
+    var mi=document.getElementById('menu-icon');
+    var ci=document.getElementById('close-icon');
+    btn.addEventListener('click',function(){
+        var open=mm.style.display==='block';
+        mm.style.display=open?'none':'block';
+        mi.style.display=open?'block':'none';
+        ci.style.display=open?'none':'block';
+    });
+    document.querySelectorAll('.mobile-link').forEach(function(l){
+        l.addEventListener('click',function(){
+            mm.style.display='none';
+            mi.style.display='block';
+            ci.style.display='none';
+        });
+    });
+
+    // ── Intersection Observer scroll reveal (replaces AOS) ──
+    var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+            if(e.isIntersecting) e.target.classList.add('visible');
+        });
+    },{threshold:.12});
+    document.querySelectorAll('.reveal,.reveal-zoom,.reveal-right').forEach(function(el){
+        io.observe(el);
+    });
+})();
+</script>
+</body>
+</html>
